@@ -1,35 +1,62 @@
-# Whisper Web Transcriber
+# Recall
 
-Small Flask web app that wraps [openai/whisper](https://github.com/openai/whisper) so you can upload an audio file and read the generated transcript in the browser.
+Recall is a lightweight meeting-transcript workspace: drop any recording in the browser, choose the Whisper checkpoint that fits your hardware, and get polished text with timestamps in one go. Everything runs locally on your machine—audio files are deleted as soon as transcription finishes.
+
+## Highlights
+
+- **Private-by-default** – uploads are written to a temp file, processed with Whisper, then removed immediately.
+- **Model picker** – switch between tiny/fast checkpoints and large/high-accuracy ones without redeploying.
+- **Language hints** – auto-detect by default, with quick overrides for English and Bahasa Indonesia (extendable).
+- **Segment view** – inspect timestamped chunks for rapid skim-throughs or editing.
+- **Progress feedback** – see a live status bar while uploads/transcriptions complete.
 
 ## Requirements
 
-- Python 3.10+
-- `ffmpeg` (required by Whisper for audio decoding)
-- A CPU/GPU capable of running the chosen Whisper model (default: `base`)
+- macOS / Linux / Windows with Python 3.10+
+- `ffmpeg` on your `$PATH` (Whisper uses it to decode audio)
+- CPU or GPU VRAM capable of running the chosen Whisper model (defaults to `large-v3`; swap to `base`/`small` if needed)
+- First run needs internet access so Whisper can download weights
 
 ## Setup
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Running the dev server
+## Running Recall locally
 
 ```bash
-# optional; override if you want a different checkpoint than the default large-v3
-export WHISPER_MODEL=large-v3
-# optional; set a fixed language (ISO code or spelled-out). Default is Indonesian.
-export WHISPER_LANGUAGE=indonesian
+# Optional overrides before launching
+export WHISPER_MODEL=medium        # default: large-v3
+export WHISPER_LANGUAGE=en         # default: auto
+export PORT=5050                   # default: 5000
+
 python app.py
 ```
 
-Then open http://localhost:5000 and drop an audio file (`.mp3`, `.wav`, `.m4a`, `.flac`, `.ogg`, `.webm`). Use the language dropdown (Auto, English, Bahasa Indonesia) before submitting if you want to bypass auto-detection. The server streams the file to Whisper, returns the transcript, and the UI shows the full text plus optional time-coded segments.
+Then visit `http://localhost:<PORT>` (e.g., `http://localhost:5050`) and:
 
-## Notes
+1. Upload a meeting recording (`.mp3`, `.wav`, `.m4a`, `.flac`, `.ogg`, `.webm`, up to ~40 MB).
+2. Optionally pick the language and Whisper model in the form.
+3. Watch the progress indicator; once complete, the transcript plus per-segment timestamps appear instantly.
+4. Copy or download the text—nothing is stored server-side after the page refreshes.
 
-- The server limits uploads to ~40 MB. Adjust `app.config["MAX_CONTENT_LENGTH"]` in `app.py` for bigger files.
-- If you run on CPU-only hardware, forcing `fp16=False` keeps the app compatible. For GPUs, remove that flag to enable faster FP16 inference.
-- Whisper downloads model weights on first run; keep an internet connection the first time you launch. The default `large-v3` checkpoint provides the highest accuracy but needs a strong GPU (or patience on CPU); switch to `small`/`base` in `WHISPER_MODEL` if resources are limited. Use `WHISPER_LANGUAGE` to preselect the server-side default language (the browser dropdown can still override it per request).
+## Environment knobs
+
+| Variable | Purpose | Notes |
+| --- | --- | --- |
+| `WHISPER_MODEL` | Default checkpoint | Any model from `WHISPER_MODELS` list |
+| `WHISPER_MODELS` | Comma-delimited allowlist | Example: `tiny,base,small,medium,large-v2` |
+| `WHISPER_LANGUAGE` | Default language hint | Use ISO codes (`en`, `id`) or spelled-out names |
+| `PORT` | Flask port | Defaults to `5000` |
+
+These values populate the UI dropdowns so end users can still override them per upload.
+
+## Notes & tips
+
+- Upload limit is 40 MB (`app.config["MAX_CONTENT_LENGTH"]`); raise it if you need longer calls.
+- On CPU-only hardware, `fp16=False` keeps things stable. If you have a GPU with FP16 support, you can enable mixed precision in `app.py` for faster runs.
+- The first time you choose a new Whisper model, the weights download (~1 GB for base, ~3 GB for large). Subsequent runs reuse the cached files.
+- If you extend the UI with more languages or models, remember to update both `WHISPER_MODELS` (backend) and the dropdown labels (frontend).
