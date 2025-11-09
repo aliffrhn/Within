@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Recall This</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
@@ -53,22 +54,22 @@
           <p class="hint">Use manual language if the meeting stayed in one tongue.</p>
 
           <label for="model">Model</label>
-          <select id="model" name="model" aria-describedby="model-hint">
-            {% for option in model_options %}
-            <option
-              value="{{ option.value }}"
-              data-hint="{{ option.description }}"
-              data-recommended="{{ option.is_recommended|default(false) }}"
-              {% if option.value == default_model %}selected{% endif %}
-            >
-              {{ option.label }}
-              {% if option.is_recommended %}
-              (👍 Recommended)
-              {% endif %}
-            </option>
-            {% endfor %}
-          </select>
-          <p id="model-hint" class="hint">{{ default_model_description }}</p>
+            <select id="model" name="model" aria-describedby="model-hint">
+              {% for option in model_options %}
+              <option
+                value="{{ option.value }}"
+                data-hint="{{ option.description }}"
+                data-recommended="{{ option.is_recommended|default(false) }}"
+                {% if option.value == selected_model %}selected{% endif %}
+              >
+                {{ option.label }}
+                {% if option.is_recommended %}
+                (👍 Recommended)
+                {% endif %}
+              </option>
+              {% endfor %}
+            </select>
+            <p id="model-hint" class="hint">{{ selected_model_description }}</p>
 
           <button type="submit">Transcribe recording</button>
         </form>

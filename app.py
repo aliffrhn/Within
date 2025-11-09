@@ -28,7 +28,10 @@ else:
         "large-v3",
     ]
 
-DEFAULT_MODEL = os.environ.get("WHISPER_MODEL") or MODEL_CHOICES[-1]
+RECOMMENDED_MODEL = os.environ.get("WHISPER_RECOMMENDED_MODEL", "medium")
+DEFAULT_MODEL = os.environ.get("WHISPER_MODEL")
+if not DEFAULT_MODEL:
+    DEFAULT_MODEL = RECOMMENDED_MODEL if RECOMMENDED_MODEL in MODEL_CHOICES else MODEL_CHOICES[-1]
 if DEFAULT_MODEL not in MODEL_CHOICES:
     MODEL_CHOICES.append(DEFAULT_MODEL)
 
@@ -72,20 +75,19 @@ def summarize_transcript(text: str, api_key: str, language: Optional[str]) -> Tu
         "messages": [
             {
                 "role": "system",
-                "role": "system",
                 "content": (
-                    "You are Summarize.AI, an intelligent assistant that turns meeting transcripts into concise summaries. "
+                    "You are an intelligent assistant that turns meeting transcripts into concise summaries. "
                     "Your goal is to capture the essence of the discussion in a few clear sentences or bullet points.\n\n"
-                    "Analyze the transcript and write a short recap (around 3–6 bullet points) that includes: main topics discussed, important insights or updates, key decisions or agreements (if any), and next steps or follow-up notes (only if mentioned).\n\n"
+                    "Analyze the transcript and write a summary that includes: main topics discussed, important insights or updates, key decisions or agreements (if any), and next steps or follow-up notes (only if mentioned).\n\n"
                     "Guidelines: keep it short, neutral, and easy to skim; avoid unnecessary details or greetings; if something is unclear, summarize what’s understood instead of guessing; write in plain, natural language.\n\n"
-                    "Output format: 3–6 bullet points summarizing the meeting with no title or intro."
+                    "Output format: summarize meeting with no title or intro."
                 ),
             },
             {
                 "role": "user",
                 "content": (
                     "Meeting language: {lang}\n"
-                    "Provide a short summary (3-5 bullet points) for this transcript:\n\n{transcript}"
+                    "Provide a concise summary (sentences or bullet points as appropriate) for this transcript:\n\n{transcript}"
                 ).format(lang=language or "auto", transcript=transcript),
             },
         ],
@@ -120,6 +122,9 @@ def allowed_file(filename: str) -> bool:
 
 @app.route("/")
 def index():
+    recommended_model = RECOMMENDED_MODEL if RECOMMENDED_MODEL in MODEL_CHOICES else None
+    selected_model = recommended_model or DEFAULT_MODEL
+    selected_model_description = MODEL_DESCRIPTIONS.get(selected_model, "Balanced performance")
     model_options = []
     for model_name in MODEL_CHOICES:
         description = MODEL_DESCRIPTIONS.get(model_name, "Balanced performance")
@@ -131,15 +136,15 @@ def index():
                 "value": model_name,
                 "label": display_label,
                 "description": description,
-                "is_recommended": model_name == "medium",
+                "is_recommended": model_name == RECOMMENDED_MODEL,
             }
         )
     return render_template(
         "index.html",
         model_choices=MODEL_CHOICES,
         model_options=model_options,
-        default_model=DEFAULT_MODEL,
-        default_model_description=MODEL_DESCRIPTIONS.get(DEFAULT_MODEL, "Balanced performance"),
+        selected_model=selected_model,
+        selected_model_description=selected_model_description,
         has_default_openai=bool(DEFAULT_OPENAI_KEY),
     )
 
