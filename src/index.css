@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 199 89% 44%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 210 32% 94%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 28% 96%;
+    --muted-foreground: 215 16% 38%;
+    --accent: 164 70% 38%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 88%;
+    --input: 214 32% 88%;
+    --ring: 199 89% 44%;
+    --radius: 0.9rem;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 32% 10%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 30% 12%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 188 85% 52%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 223 20% 18%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 223 24% 16%;
+    --muted-foreground: 215 16% 68%;
+    --accent: 152 68% 45%;
+    --accent-foreground: 222 47% 6%;
+    --destructive: 0 72% 52%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 220 16% 22%;
+    --input: 220 16% 22%;
+    --ring: 188 85% 52%;
+    --radius: 0.9rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: theme('fontFamily.sans');
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    color-scheme: light;
+    background-image:
+      radial-gradient(circle at 12% 15%, hsl(199 90% 88% / 0.6), transparent 45%),
+      radial-gradient(circle at 88% 12%, hsl(164 70% 86% / 0.45), transparent 45%),
+      radial-gradient(circle at 50% 90%, hsl(210 90% 94% / 0.6), transparent 50%),
+      linear-gradient(140deg, hsl(210 40% 98%), hsl(210 40% 96%) 45%, hsl(210 40% 98%));
+    background-size: 140% 140%, 165% 165%, 150% 150%, 110% 110%;
+    background-position: 0% 0%, 100% 5%, 40% 90%, 50% 50%;
+    background-attachment: fixed;
+    animation: gradient-drift 32s ease-in-out infinite;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        hsl(var(--foreground) / 0.03) 0,
+        hsl(var(--foreground) / 0.03) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        hsl(var(--foreground) / 0.02) 0,
+        hsl(var(--foreground) / 0.02) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes gradient-drift {
+  0% {
+    background-position: 0% 0%, 100% 5%, 40% 90%, 50% 50%;
+  }
+  50% {
+    background-position: 10% 12%, 88% 10%, 52% 75%, 50% 50%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 5%, 40% 90%, 50% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}

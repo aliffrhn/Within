@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import tempfile
@@ -7,12 +6,14 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 import whisper
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 40 * 1024 * 1024  # 40 MB upload limit
+
+MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "40"))
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 ALLOWED_EXTENSIONS = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".webm"}
 
 MODEL_CHOICES_ENV = os.environ.get("WHISPER_MODELS")
@@ -45,6 +46,12 @@ MODEL_DESCRIPTIONS = {
 }
 
 DEFAULT_LANGUAGE = os.environ.get("WHISPER_LANGUAGE")
+_LANGUAGE_OPTIONS = [
+    {"value": "auto", "label": "Auto detect"},
+    {"value": "en", "label": "English"},
+    {"value": "id", "label": "Bahasa Indonesia"},
+]
+
 _MODEL_CACHE: Dict[str, whisper.Whisper] = {}
 
 DEFAULT_OPENAI_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4o-mini")
@@ -117,36 +124,48 @@ def summarize_transcript(text: str, api_key: str, language: Optional[str]) -> Tu
         app.logger.exception("Summary generation failed: %s", exc)
         return None, str(exc)
 
+
 def allowed_file(filename: str) -> bool:
     return Path(filename).suffix.lower() in ALLOWED_EXTENSIONS
 
-@app.route("/")
-def index():
-    recommended_model = RECOMMENDED_MODEL if RECOMMENDED_MODEL in MODEL_CHOICES else None
-    selected_model = recommended_model or DEFAULT_MODEL
-    selected_model_description = MODEL_DESCRIPTIONS.get(selected_model, "Balanced performance")
-    model_options = []
+
+def build_model_options() -> List[Dict[str, object]]:
+    options = []
     for model_name in MODEL_CHOICES:
         description = MODEL_DESCRIPTIONS.get(model_name, "Balanced performance")
         pretty_name = model_name.replace("-", " ").title()
-        label = f"{pretty_name} · {description}"
-        display_label = label
-        model_options.append(
+        options.append(
             {
                 "value": model_name,
-                "label": display_label,
+                "label": pretty_name,
                 "description": description,
-                "is_recommended": model_name == RECOMMENDED_MODEL,
+                "isRecommended": model_name == RECOMMENDED_MODEL,
             }
         )
-    return render_template(
-        "index.html",
-        model_choices=MODEL_CHOICES,
-        model_options=model_options,
-        selected_model=selected_model,
-        selected_model_description=selected_model_description,
-        has_default_openai=bool(DEFAULT_OPENAI_KEY),
+    return options
+
+
+@app.get("/")
+def root():
+    return jsonify({"status": "ok"})
+
+
+@app.get("/config")
+def config():
+    recommended_model = RECOMMENDED_MODEL if RECOMMENDED_MODEL in MODEL_CHOICES else None
+    selected_model = DEFAULT_MODEL or recommended_model or (MODEL_CHOICES[-1] if MODEL_CHOICES else "medium")
+    return jsonify(
+        {
+            "languageOptions": _LANGUAGE_OPTIONS,
+            "modelOptions": build_model_options(),
+            "defaultModel": selected_model,
+            "recommendedModel": recommended_model or selected_model,
+            "defaultLanguage": DEFAULT_LANGUAGE or "auto",
+            "maxUploadMb": MAX_UPLOAD_MB,
+            "hasDefaultOpenai": bool(DEFAULT_OPENAI_KEY),
+        }
     )
+
 
 @app.post("/transcribe")
 def transcribe():
@@ -231,4 +250,4 @@ def summarize():
 
 if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=debug)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5050)), debug=debug)
