@@ -1,6 +1,6 @@
-# Recall This
+# Within
 
-Local-first meeting transcription with a React frontend and a Python Whisper backend. In dev you run two servers: Flask for the API and Vite for the UI.
+Private meeting transcription with timestamps. Your audio stays on your machine, with optional recaps when you need them.
 
 ## Requirements
 
