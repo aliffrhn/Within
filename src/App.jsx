@@ -25,6 +25,25 @@ const DEFAULT_MODEL_OPTIONS = [
   { value: 'large-v3', label: 'Large v3', description: 'Best accuracy, slowest.' },
 ];
 
+const SUPPORTED_AUDIO_EXTENSIONS = ['.mp3', '.wav', '.m4a', '.flac', '.ogg', '.webm'];
+const ACCEPTED_AUDIO_TYPES = [
+  '.mp3',
+  '.wav',
+  '.m4a',
+  '.flac',
+  '.ogg',
+  '.webm',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/flac',
+  'audio/ogg',
+  'audio/webm',
+  'audio/mp4',
+  'audio/x-m4a',
+].join(',');
+const UNSUPPORTED_FILE_MESSAGE = 'Unsupported file type. Choose MP3, WAV, M4A, FLAC, OGG, or WEBM.';
+
 const KEY_STORAGE_ID = 'recall-openai-key';
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
@@ -65,6 +84,29 @@ function App() {
   const fileInputRef = useRef(null);
   const progressTimer = useRef(null);
   const progressHideTimer = useRef(null);
+
+  const validateAudioFile = (file) => {
+    if (!file) {
+      return { ok: false, message: 'Choose an audio file first.' };
+    }
+
+    const nameParts = file.name?.split('.') || [];
+    const extension = nameParts.length > 1 ? `.${nameParts.pop().toLowerCase()}` : '';
+    const isSupportedExtension = SUPPORTED_AUDIO_EXTENSIONS.includes(extension);
+    const mimeType = (file.type || '').toLowerCase();
+    const looksLikeAudio = mimeType ? mimeType.startsWith('audio/') : true;
+
+    if (!isSupportedExtension || !looksLikeAudio) {
+      return { ok: false, message: UNSUPPORTED_FILE_MESSAGE };
+    }
+
+    const sizeMb = file.size / (1024 * 1024);
+    if (sizeMb > maxUploadMb) {
+      return { ok: false, message: `File exceeds ${maxUploadMb} MB limit.` };
+    }
+
+    return { ok: true };
+  };
 
   const hasSummaryKey = hasDefaultOpenai || Boolean(openaiKey.trim());
 
@@ -203,10 +245,15 @@ function App() {
       setStatus({ message: 'Choose an audio file first.', type: 'error' });
       return;
     }
+    const validation = validateAudioFile(audioFile);
+    if (!validation.ok) {
+      setStatus({ message: validation.message, type: 'error' });
+      return;
+    }
 
     setIsTranscribing(true);
-    setStatus({ message: 'Uploading and transcribing...', type: 'info' });
-    startProgress('Uploading audio...');
+    setStatus({ message: 'Preparing audio and transcribing locally...', type: 'info' });
+    startProgress('Processing audio locally...');
 
     const formData = new FormData();
     formData.append('audio', audioFile);
@@ -218,7 +265,7 @@ function App() {
         method: 'POST',
         body: formData,
       });
-      setProgressState((prev) => ({ ...prev, label: 'Transcribing audio...' }));
+      setProgressState((prev) => ({ ...prev, label: 'Transcribing locally...' }));
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to transcribe file');
@@ -407,11 +454,28 @@ function App() {
                   <Input
                     id="audio"
                     type="file"
-                    accept="audio/*"
+                    accept={ACCEPTED_AUDIO_TYPES}
                     className="sr-only"
                     ref={fileInputRef}
                     aria-describedby="audio-file-name"
-                    onChange={(event) => setAudioFile(event.target.files?.[0] || null)}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] || null;
+                      if (!file) {
+                        setAudioFile(null);
+                        return;
+                      }
+                      const validation = validateAudioFile(file);
+                      if (!validation.ok) {
+                        setAudioFile(null);
+                        setStatus({ message: validation.message, type: 'error' });
+                        event.target.value = '';
+                        return;
+                      }
+                      setAudioFile(file);
+                      if (status.type === 'error') {
+                        setStatus({ message: '', type: '' });
+                      }
+                    }}
                   />
                   <Button
                     variant="secondary"
