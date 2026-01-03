@@ -54,7 +54,7 @@ _LANGUAGE_OPTIONS = [
 
 _MODEL_CACHE: Dict[str, whisper.Whisper] = {}
 
-DEFAULT_OPENAI_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4o-mini")
+DEFAULT_OPENAI_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4.1-mini")
 DEFAULT_OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1").rstrip("/")
 

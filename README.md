@@ -81,7 +81,7 @@ export VITE_BACKEND_URL=http://localhost:5050
 | `WHISPER_LANGUAGE` | Default language hint | `auto` |
 | `MAX_UPLOAD_MB` | Upload limit in MB | `40` |
 | `OPENAI_API_KEY` | Server-side summary key | unset |
-| `OPENAI_SUMMARY_MODEL` | Summary model | `gpt-4o-mini` |
+| `OPENAI_SUMMARY_MODEL` | Summary model | `gpt-4.1-mini` |
 | `OPENAI_API_BASE` | Custom OpenAI-compatible endpoint | `https://api.openai.com/v1` |
 
 ## Notes
