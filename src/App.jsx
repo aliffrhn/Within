@@ -404,17 +404,37 @@ function App() {
     </div>
   );
 
+  const panelCardClass =
+    'mx-auto w-full max-w-3xl rounded-2xl border-white/60 bg-white/90 shadow-xl backdrop-blur-lg';
+
   return (
     <div className="min-h-screen">
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
-        <section className="space-y-4">
-          <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Within</h1>
-          <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+      <main className="mx-auto flex w-full max-w-5xl flex-col items-center gap-10 px-6 pt-32 pb-16">
+        <section className="space-y-5 text-center">
+          <div className="inline-flex items-center gap-3">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900">
+              <img
+                src="/favicon.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-8 w-8"
+                decoding="async"
+                loading="lazy"
+              />
+            </span>
+            <h1
+              className="font-display text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl"
+              style={{ fontFamily: '"Noto Serif", Georgia, serif' }}
+            >
+              Within
+            </h1>
+          </div>
+          <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Local meeting transcription with timestamps. Your audio stays on your machine. Optional recaps when you need them.
           </p>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-foreground/85">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-foreground/85">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/35 px-3 py-1">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" focusable="false" />
               <span className="inline-flex items-center gap-1">
                 <span>Runs fully on-device with</span>
                 <a
@@ -428,13 +448,13 @@ function App() {
               </span>
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/35 px-3 py-1">
-              <UploadCloud className="h-4 w-4 text-accent" />
+              <UploadCloud className="h-4 w-4 text-accent" aria-hidden="true" focusable="false" />
               Audio never leaves your machine
             </span>
           </div>
         </section>
 
-        <Card className="border-border/70 bg-card/80 shadow-lg backdrop-blur">
+        <Card className={panelCardClass}>
           <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <CardTitle>Upload a recording</CardTitle>
@@ -553,7 +573,7 @@ function App() {
         </Card>
 
         {transcript ? (
-          <Card className="border-border/70 bg-card/80 shadow-lg backdrop-blur">
+          <Card className={panelCardClass}>
             <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="space-y-2">
                 <CardTitle>Transcript</CardTitle>
@@ -561,7 +581,7 @@ function App() {
                   Structured transcript with timestamps for review, editing, and export.
                 </CardDescription>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
                 <Button variant="outline" size="sm" onClick={handleCopyTranscript}>
                   <Copy className="h-4 w-4" />
                   {copyTranscriptLabel}
@@ -612,7 +632,7 @@ function App() {
         ) : null}
 
         {transcript ? (
-          <Card className="border-border/70 bg-card/80 shadow-lg backdrop-blur">
+          <Card className={panelCardClass}>
             <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">

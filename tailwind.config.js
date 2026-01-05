@@ -48,7 +48,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Noto Serif"', 'Georgia', 'serif'],
       },
       keyframes: {
         'accordion-down': {
