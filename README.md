@@ -2,6 +2,28 @@
 
 Private meeting transcription with timestamps. Your audio stays on your machine, with optional recaps when you need them.
 
+## Features
+
+- Runs Whisper locally: audio never leaves your machine.
+- Upload any supported audio and track progress with in-app status.
+- Structured transcript with timestamps and quick copy actions.
+- Optional AI summary (OpenAI key) to generate bullet notes.
+
+![Within quick tour](docs/media/within-features.gif)
+
+**Upload & progress**
+
+![Upload form and progress](docs/media/feature-upload.png)
+![Local processing status](docs/media/feature-progress.png)
+
+**Transcript**
+
+![Timestamped transcript view](docs/media/feature-transcript.png)
+
+**AI summary**
+
+![AI summary bullets](docs/media/feature-summary.png)
+
 ## Requirements
 
 - Python 3.10+
