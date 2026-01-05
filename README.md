@@ -1,6 +1,7 @@
 # Within
 
 Private meeting transcription with timestamps. Your audio stays on your machine, with optional recaps when you need them.
+![Timestamped transcript view](docs/media/feature-transcript.png)
 
 ## Features
 
@@ -11,11 +12,9 @@ Private meeting transcription with timestamps. Your audio stays on your machine,
 
 ![Within quick tour](docs/media/within-features.gif)
 ![Upload form and progress](docs/media/feature-upload.png)
-![Local processing status](docs/media/feature-progress.png)
 
 **Transcript**
-
-![Timestamped transcript view](docs/media/feature-transcript.png)
+![Local processing status](docs/media/feature-progress.png)
 
 **AI summary**
 
