@@ -10,9 +10,6 @@ Private meeting transcription with timestamps. Your audio stays on your machine,
 - Optional AI summary (OpenAI key) to generate bullet notes.
 
 ![Within quick tour](docs/media/within-features.gif)
-
-**Upload & progress**
-
 ![Upload form and progress](docs/media/feature-upload.png)
 ![Local processing status](docs/media/feature-progress.png)
 
